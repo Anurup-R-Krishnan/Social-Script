@@ -7,31 +7,31 @@ import { ScenarioPlayer } from './components/ScenarioPlayer';
 import { CompletedView } from './components/CompletedView';
 import { ParentMode } from './components/ParentMode';
 import { Settings } from './components/Settings';
+import { ReflectionForm } from './components/ReflectionForm';
 import { Scenario } from './shared/scenarioTypes';
 
-// --- Types ---
 
-type View = 'home' | 'player' | 'parent' | 'settings';
 
-// --- Main App ---
+type View = 'home' | 'player' | 'parent' | 'settings' | 'reflection';
+
+
 
 const App = () => {
-  // Navigation State
   const [view, setView] = useState<View>('home');
   const [activeScenarioId, setActiveScenarioId] = useState<string | null>(null);
   const [isScenarioComplete, setIsScenarioComplete] = useState(false);
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [isLoadingScenarios, setIsLoadingScenarios] = useState(true);
 
-  // Persistence State
+  
   const [completedScenarios, setCompletedScenarios] = useLocalStorage<string[]>('completed', []);
 
-  // Accessibility State
+  
   const [highContrast, setHighContrast] = useLocalStorage('pref_hc', false);
   const [largeText, setLargeText] = useLocalStorage('pref_lt', false);
   const [reduceMotion, setReduceMotion] = useLocalStorage('pref_rm', false);
 
-  // Apply Accessibility Classes
+  
   useEffect(() => {
     document.body.classList.toggle('high-contrast', highContrast);
     document.body.classList.toggle('large-text', largeText);
@@ -61,7 +61,7 @@ const App = () => {
     };
   }, []);
 
-  // Handlers
+  
   const startScenario = (id: string) => {
     setActiveScenarioId(id);
     setIsScenarioComplete(false);
@@ -78,7 +78,7 @@ const App = () => {
   const startNextScenario = () => {
     const currentIndex = scenarios.findIndex(s => s.id === activeScenarioId);
     if (currentIndex >= 0 && scenarios.length > 0) {
-      // Wrap around to the beginning if it's the last one
+      
       const nextIndex = (currentIndex + 1) % scenarios.length;
       startScenario(scenarios[nextIndex].id);
     } else {
@@ -100,6 +100,7 @@ const App = () => {
         goHome={goHome} 
         goParent={() => setView('parent')} 
         goSettings={() => setView('settings')} 
+        goReflection={() => setView('reflection')}
       />
       
       <main>
@@ -148,6 +149,10 @@ const App = () => {
             reduceMotion={reduceMotion} 
             setReduceMotion={setReduceMotion}
           />
+        )}
+
+        {view === 'reflection' && (
+          <ReflectionForm scenarios={scenarios} />
         )}
       </main>
     </>
