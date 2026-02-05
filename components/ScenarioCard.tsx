@@ -1,5 +1,5 @@
 import React from 'react';
-import { Scenario } from '../scenarios';
+import { Scenario } from '../shared/scenarioTypes';
 
 interface ScenarioCardProps {
   scenario: Scenario;

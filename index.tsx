@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import { SCENARIOS } from './scenarios';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { Header } from './components/Header';
 import { ScenarioCard } from './components/ScenarioCard';
@@ -8,6 +7,7 @@ import { ScenarioPlayer } from './components/ScenarioPlayer';
 import { CompletedView } from './components/CompletedView';
 import { ParentMode } from './components/ParentMode';
 import { Settings } from './components/Settings';
+import { Scenario } from './shared/scenarioTypes';
 
 // --- Types ---
 
@@ -20,6 +20,8 @@ const App = () => {
   const [view, setView] = useState<View>('home');
   const [activeScenarioId, setActiveScenarioId] = useState<string | null>(null);
   const [isScenarioComplete, setIsScenarioComplete] = useState(false);
+  const [scenarios, setScenarios] = useState<Scenario[]>([]);
+  const [isLoadingScenarios, setIsLoadingScenarios] = useState(true);
 
   // Persistence State
   const [completedScenarios, setCompletedScenarios] = useLocalStorage<string[]>('completed', []);
@@ -36,6 +38,29 @@ const App = () => {
     document.body.classList.toggle('reduce-motion', reduceMotion);
   }, [highContrast, largeText, reduceMotion]);
 
+  useEffect(() => {
+    let isMounted = true;
+    setIsLoadingScenarios(true);
+    fetch('/api/scenarios')
+      .then((response) => response.json())
+      .then((data: Scenario[]) => {
+        if (!isMounted) return;
+        setScenarios(data);
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        setScenarios([]);
+      })
+      .finally(() => {
+        if (!isMounted) return;
+        setIsLoadingScenarios(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // Handlers
   const startScenario = (id: string) => {
     setActiveScenarioId(id);
@@ -51,11 +76,11 @@ const App = () => {
   };
 
   const startNextScenario = () => {
-    const currentIndex = SCENARIOS.findIndex(s => s.id === activeScenarioId);
-    if (currentIndex >= 0 && SCENARIOS.length > 0) {
+    const currentIndex = scenarios.findIndex(s => s.id === activeScenarioId);
+    if (currentIndex >= 0 && scenarios.length > 0) {
       // Wrap around to the beginning if it's the last one
-      const nextIndex = (currentIndex + 1) % SCENARIOS.length;
-      startScenario(SCENARIOS[nextIndex].id);
+      const nextIndex = (currentIndex + 1) % scenarios.length;
+      startScenario(scenarios[nextIndex].id);
     } else {
       goHome();
     }
@@ -67,7 +92,7 @@ const App = () => {
     setIsScenarioComplete(false);
   };
 
-  const activeScenario = SCENARIOS.find(s => s.id === activeScenarioId);
+  const activeScenario = scenarios.find(s => s.id === activeScenarioId);
 
   return (
     <>
@@ -81,16 +106,20 @@ const App = () => {
         {view === 'home' && (
           <div>
             <h1 style={{ marginBottom: '1.5rem' }}>Choose a Practice Scenario</h1>
-            <div className="scenario-grid">
-              {SCENARIOS.map(scenario => (
-                <ScenarioCard 
-                  key={scenario.id} 
-                  scenario={scenario} 
-                  onClick={() => startScenario(scenario.id)}
-                  isCompleted={completedScenarios.includes(scenario.id)}
-                />
-              ))}
-            </div>
+            {isLoadingScenarios ? (
+              <p>Loading scenarios…</p>
+            ) : (
+              <div className="scenario-grid">
+                {scenarios.map(scenario => (
+                  <ScenarioCard 
+                    key={scenario.id} 
+                    scenario={scenario} 
+                    onClick={() => startScenario(scenario.id)}
+                    isCompleted={completedScenarios.includes(scenario.id)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         )}
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Scenario, Choice } from '../scenarios';
+import { Scenario, Choice } from '../shared/scenarioTypes';
 
 interface ScenarioPlayerProps {
   scenario: Scenario;
