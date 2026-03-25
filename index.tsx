@@ -9,6 +9,7 @@ import { ParentMode } from './components/ParentMode';
 import { Settings } from './components/Settings';
 import { ReflectionForm } from './components/ReflectionForm';
 import { Scenario } from './shared/scenarioTypes';
+import { SCENARIOS } from './backend/scenarios';
 
 
 
@@ -20,8 +21,8 @@ const App = () => {
   const [view, setView] = useState<View>('home');
   const [activeScenarioId, setActiveScenarioId] = useState<string | null>(null);
   const [isScenarioComplete, setIsScenarioComplete] = useState(false);
-  const [scenarios, setScenarios] = useState<Scenario[]>([]);
-  const [isLoadingScenarios, setIsLoadingScenarios] = useState(true);
+  const [scenarios] = useState<Scenario[]>(SCENARIOS);
+  const isLoadingScenarios = false;
 
   
   const [completedScenarios, setCompletedScenarios] = useLocalStorage<string[]>('completed', []);
@@ -37,29 +38,6 @@ const App = () => {
     document.body.classList.toggle('large-text', largeText);
     document.body.classList.toggle('reduce-motion', reduceMotion);
   }, [highContrast, largeText, reduceMotion]);
-
-  useEffect(() => {
-    let isMounted = true;
-    setIsLoadingScenarios(true);
-    fetch('/api/scenarios')
-      .then((response) => response.json())
-      .then((data: Scenario[]) => {
-        if (!isMounted) return;
-        setScenarios(data);
-      })
-      .catch(() => {
-        if (!isMounted) return;
-        setScenarios([]);
-      })
-      .finally(() => {
-        if (!isMounted) return;
-        setIsLoadingScenarios(false);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   
   const startScenario = (id: string) => {
