@@ -8,12 +8,13 @@ import { CompletedView } from './components/CompletedView';
 import { ParentMode } from './components/ParentMode';
 import { Settings } from './components/Settings';
 import { ReflectionForm } from './components/ReflectionForm';
+import { AnalyticsDashboard } from './components/AnalyticsDashboard';
 import { Scenario } from './shared/scenarioTypes';
 import { SCENARIOS } from './backend/scenarios';
 
 
 
-type View = 'home' | 'player' | 'parent' | 'settings' | 'reflection';
+type View = 'home' | 'player' | 'parent' | 'settings' | 'reflection' | 'analytics';
 
 
 
@@ -79,6 +80,7 @@ const App = () => {
         goParent={() => setView('parent')} 
         goSettings={() => setView('settings')} 
         goReflection={() => setView('reflection')}
+        goAnalytics={() => setView('analytics')}
       />
       
       <main>
@@ -131,6 +133,10 @@ const App = () => {
 
         {view === 'reflection' && (
           <ReflectionForm scenarios={scenarios} />
+        )}
+
+        {view === 'analytics' && (
+          <AnalyticsDashboard scenarios={scenarios} completedScenarios={completedScenarios} />
         )}
       </main>
     </>

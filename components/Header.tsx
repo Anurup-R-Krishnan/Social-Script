@@ -5,13 +5,15 @@ interface HeaderProps {
   goParent: () => void;
   goSettings: () => void;
   goReflection: () => void;
+  goAnalytics: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({ 
   goHome, 
   goParent, 
   goSettings,
-  goReflection
+  goReflection,
+  goAnalytics
 }) => (
   <header>
     <button onClick={goHome} className="app-title" aria-label="Go to Home">
@@ -21,6 +23,7 @@ export const Header: React.FC<HeaderProps> = ({
       <button onClick={goHome} className="btn btn-secondary" style={{ marginRight: '0.5rem' }}>Home</button>
       <button onClick={goSettings} className="btn btn-secondary" style={{ marginRight: '0.5rem' }}>Settings</button>
       <button onClick={goReflection} className="btn btn-secondary" style={{ marginRight: '0.5rem' }}>Reflection</button>
+      <button onClick={goAnalytics} className="btn btn-secondary" style={{ marginRight: '0.5rem' }}>Analytics</button>
       <button onClick={goParent} className="btn btn-secondary">Parent Mode</button>
     </nav>
   </header>
